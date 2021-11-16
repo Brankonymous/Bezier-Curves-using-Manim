@@ -1,0 +1,10 @@
+# This file is used internally by FFMPEG.
+file 'file:C:/Users/brank/Desktop/MATF/3. semestar/Geometrija/Bezier-Curves-using-Manim/media/videos/bezier/480p15/partial_movie_files/DotToLine/3163782288_2559461702_4101073582.mp4'
+file 'file:C:/Users/brank/Desktop/MATF/3. semestar/Geometrija/Bezier-Curves-using-Manim/media/videos/bezier/480p15/partial_movie_files/DotToLine/3163782288_694127515_2181606000.mp4'
+file 'file:C:/Users/brank/Desktop/MATF/3. semestar/Geometrija/Bezier-Curves-using-Manim/media/videos/bezier/480p15/partial_movie_files/DotToLine/2201830969_398514950_228664200.mp4'
+file 'file:C:/Users/brank/Desktop/MATF/3. semestar/Geometrija/Bezier-Curves-using-Manim/media/videos/bezier/480p15/partial_movie_files/DotToLine/2201830969_1644773869_465038333.mp4'
+file 'file:C:/Users/brank/Desktop/MATF/3. semestar/Geometrija/Bezier-Curves-using-Manim/media/videos/bezier/480p15/partial_movie_files/DotToLine/2201830969_210019415_728249024.mp4'
+file 'file:C:/Users/brank/Desktop/MATF/3. semestar/Geometrija/Bezier-Curves-using-Manim/media/videos/bezier/480p15/partial_movie_files/DotToLine/2201830969_398514950_1018583308.mp4'
+file 'file:C:/Users/brank/Desktop/MATF/3. semestar/Geometrija/Bezier-Curves-using-Manim/media/videos/bezier/480p15/partial_movie_files/DotToLine/2201830969_4115406132_2423231334.mp4'
+file 'file:C:/Users/brank/Desktop/MATF/3. semestar/Geometrija/Bezier-Curves-using-Manim/media/videos/bezier/480p15/partial_movie_files/DotToLine/2201830969_2425319449_3867670352.mp4'
+file 'file:C:/Users/brank/Desktop/MATF/3. semestar/Geometrija/Bezier-Curves-using-Manim/media/videos/bezier/480p15/partial_movie_files/DotToLine/2201830969_120073445_3758878374.mp4'
