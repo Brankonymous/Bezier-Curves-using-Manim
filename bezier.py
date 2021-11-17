@@ -5,7 +5,7 @@ import numpy as np
 class DotToLine(Scene):
     def construct(self):
         # Hold na 2s
-        self.wait(1)
+        self.wait()
 
         # Konstrukcija tacaka i linije
         dot1 = Dot()
@@ -38,23 +38,29 @@ class DotToLine(Scene):
         self.wait()
 
         # 2 dots
+        t = 0.5
         mid_dot_brace = BraceBetweenPoints(dot1.get_center(), mid_dot.get_center(), [-2., 3., 0])
         mid_dot_brace.add_updater(lambda z: z.become(BraceBetweenPoints(dot1.get_center(), mid_dot.get_center(), [-2., 3., 0])))
 
-        mid_text, t = label = VGroup(
+        mid_text, mid_number = label = VGroup(
             Text("t = "),
             DecimalNumber(
                 0.50,
-                show_ellipsis=True,
                 num_decimal_places=2
             )
         )
-        always(label.next_to, mid_dot_brace)
+        label.arrange(RIGHT)
 
-        self.add(label)
-        self.play(
-            Create(mid_dot_brace)
-        )
+        label.add_updater(
+                lambda m: m.next_to(mid_dot_brace, UP)
+            )
+
+        mid_number.add_updater(lambda m: m.set_value(
+                (mid_dot.get_center()[0] - dot1.get_center()[0]) / (dot2.get_center()[0] - dot1.get_center()[0])
+            ))
+
+        self.play(Create(mid_dot_brace), Create(label))
+        self.wait()
 
         mid_dot_x = ValueTracker(0)
         mid_dot_y = ValueTracker(0)
@@ -76,8 +82,20 @@ class DotToLine(Scene):
             run_time=1.5,
             rate_func=there_and_back
         )
-        self.wait(3)
+        self.wait()
 
+        self.remove(mid_dot_brace)
+        self.remove(label)
 
+        self.wait(2)
 
+'''
 
+Resenje je neodlucivo. 
+Vecina velemajstora se slazu da uz savrsenu igru, igra bi se zavrsila kao remi. 
+Ali ovo je slucaj u kome nemamo tacne definisane moci, pa ne mozemo da tvrdimo do koje granice ide necija moc. 
+Iako jedan igrac vidi buducnost, da li vidi sve alterativne buducnosti ili samo jednu (zivimo u determinizmu?)?
+Statisticki gledano, beli igrac pobedjuje vise od crnog (jer prvi napada), iz cega mozemo da zakljucimo da mozda ima odredjenu prednost. 
+Svakako, problem nije dovoljno definisan da bi mogle da se iznesu konkretne tvrdnje.
+
+'''
