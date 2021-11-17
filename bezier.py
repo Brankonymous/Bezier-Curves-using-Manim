@@ -78,7 +78,7 @@ class BezierIntro(Scene):
         self.play(
             Transform(text_intro, mid_dot_equation)
         )
-        self.wait(2)
+        self.wait()
 
         # P_MID = (1 - t) * P[0] + t * P[1]
         t = 0.5
@@ -107,7 +107,7 @@ class BezierIntro(Scene):
             Create(mid_label),
             Create(mid_dot_eq_framebox)
         )
-        self.wait(3)
+        self.wait(2)
 
         # Animacije kretanja sredisnje tacke
         mid_dot_x = ValueTracker(0)
