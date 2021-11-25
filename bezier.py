@@ -4,7 +4,7 @@ import numpy as np
 
 class BezierIntro(Scene):
 
-    def QuadraticBezier(self, dot1, dot2, dot3, mid_dot_12, mid_dot_23, mid_dot_123, line_12, line_23, line_123):
+    def QuadraticBezier(self, dot1, dot2, dot3, mid_dot_12, mid_dot_23, mid_dot_123, line_12, line_23, line_123, mid_dot_12_text, mid_dot_23_text):
 
         # LaTex Ime
         quadratic_bezier_name = Text("Kvadratna Bézier-ova kriva", t2c={"Kvadratna Bézier-ova kriva": YELLOW}).scale(0.8).shift(2.85 * DOWN)
@@ -27,9 +27,9 @@ class BezierIntro(Scene):
         # Ispisivanje jednacina...
         self.quadratic_equations = VGroup()
         
-        self.quadratic_mid_dot_12_equation = MathTex("A = lerp(t, P_1, P_2)", color=WHITE, substrings_to_isolate= {"A", "t"})
-        self.quadratic_mid_dot_23_equation = MathTex("B = lerp(t, P_2, P_3)", color=WHITE, substrings_to_isolate= {"B", "t"})
-        self.quadratic_mid_dot_123_equation = MathTex("P = lerp(t, A, B)", color=WHITE, substrings_to_isolate= {"P", "t", "A", "B"})
+        self.quadratic_mid_dot_12_equation = MathTex("A = lerp(t, P_0, P_1)", color=WHITE, substrings_to_isolate= {"A", "t"})
+        self.quadratic_mid_dot_23_equation = MathTex("B = lerp(t, P_1, P_2)", color=WHITE, substrings_to_isolate= {"B", "t"})
+        self.quadratic_mid_dot_123_equation = MathTex("P = lerp(t, A, B)", color=WHITE, substrings_to_isolate= {"P", "t", "A", "B"}).scale(0.8)
 
         self.quadratic_mid_dot_12_equation.set_color_by_tex("A", YELLOW)
         self.quadratic_mid_dot_12_equation.set_color_by_tex("t", GRAY_BROWN)
@@ -44,19 +44,9 @@ class BezierIntro(Scene):
 
         self.quadratic_equations += self.quadratic_mid_dot_12_equation
         self.quadratic_equations += self.quadratic_mid_dot_23_equation
-        self.quadratic_equations += self.quadratic_mid_dot_123_equation
 
         self.quadratic_equations.arrange(DOWN, aligned_edge=LEFT).scale(0.8).shift(2.5 * UP + 4.5 * LEFT)
-
-        # Kreiranje jednacina i objekata
-        self.play(
-            Create(line_123),
-            Create(mid_dot_12),
-            Create(mid_dot_23),
-            Create(self.quadratic_equations),
-            Create(self.t_val_label)
-        )
-        self.wait(2)
+        quadratic_equations_framebox = SurroundingRectangle(self.quadratic_equations)
 
         # Definisanje kretanja bezier-a
         self.draw_upd = 0
@@ -85,8 +75,12 @@ class BezierIntro(Scene):
             self.t += self.k * self.coeff
         
         def quad_upd_t_to_mid(mobject, dt):
-            if self.t > 0.5:
+            if (self.t > (0.5 - self.coeff)) and (self.t < (0.5 + self.coeff)):
+                self.t = 0.5 
+            elif self.t > 0.5:
                 self.t -= self.coeff
+            elif self.t < 0.5:
+                self.t += self.coeff
         
         # Transformisanje tacke u odnosu na t
         def mid_dot_12_updater(mobject, dt):
@@ -97,6 +91,50 @@ class BezierIntro(Scene):
 
         def mid_dot_123_updater(mobject, dt):
             mobject.move_to((1 - self.t) * mid_dot_12.get_center() + self.t * mid_dot_23.get_center())
+        
+        # Kreiranje jednacina i objekata
+        self.play(
+            Create(line_123),
+            Create(mid_dot_12),
+            Create(mid_dot_23),
+            Create(mid_dot_12_text),
+            Create(mid_dot_23_text),
+            Create(self.quadratic_equations),
+            Create(self.t_val_label),
+            Create(quadratic_equations_framebox)
+        )
+        self.wait()
+
+        # Pocetak animacije sa 2 linije
+        dot1.add_updater(quad_upd_t_0_1)
+        mid_dot_12.add_updater(mid_dot_12_updater)
+        mid_dot_23.add_updater(mid_dot_23_updater)
+
+        self.play(
+            Uncreate(mid_dot_12_text),
+            Uncreate(mid_dot_23_text)
+        )
+        self.wait(3)
+
+        dot1.remove_updater(quad_upd_t_0_1)
+        dot1.add_updater(quad_upd_t_to_mid)
+
+        self.wait()
+        self.play(
+            Uncreate(quadratic_equations_framebox)
+        )
+
+        self.play(
+            mid_dot_123.animate.restore(),
+            self.quadratic_equations.animate.add(self.quadratic_mid_dot_123_equation).arrange(DOWN, aligned_edge=LEFT).shift(2.5 * UP + 4.5 * LEFT)
+        )
+        
+        dot1.remove_updater(quad_upd_t_to_mid)
+        dot1.add_updater(quad_upd_t_0_1)
+
+        mid_dot_12.add_updater(mid_dot_12_updater)
+        mid_dot_23.add_updater(mid_dot_23_updater)
+        mid_dot_123.add_updater(mid_dot_123_updater)
 
         # Pokret linije
         self.curve = VGroup()
@@ -111,13 +149,11 @@ class BezierIntro(Scene):
 
             return self.curve
 
-        # Pocetak animacije
-        dot1.add_updater(quad_upd_t_0_1)
-        mid_dot_12.add_updater(mid_dot_12_updater)
-        mid_dot_23.add_updater(mid_dot_23_updater)
-        mid_dot_123.add_updater(mid_dot_123_updater)
-
-        self.wait(2)
+        quadratic_equations_framebox_upd = SurroundingRectangle(self.quadratic_equations[2])
+        self.play(
+            Create(quadratic_equations_framebox_upd)
+        )
+        self.wait()
 
         self.play(
             dot2.animate.shift(2 * LEFT)
@@ -145,7 +181,8 @@ class BezierIntro(Scene):
         self.play(
             Uncreate(self.curve),
             Uncreate(quadratic_bezier_name),
-            Uncreate(self.quadratic_equations)
+            Uncreate(self.quadratic_equations),
+            Uncreate(quadratic_equations_framebox_upd)
         )
         self.wait()
         dot1.remove_updater(quad_upd_t_to_mid)
@@ -159,11 +196,11 @@ class BezierIntro(Scene):
         # Ispisivanje jednacina... ponovo
         self.cubic_equations = VGroup()
 
-        self.cubic_mid_dot_12_equation = MathTex("A = lerp(t, P_1, P_2)", color=WHITE, substrings_to_isolate= {"A", "t"})
+        self.cubic_mid_dot_12_equation = MathTex("A = lerp(t, P_0, P_1)", color=WHITE, substrings_to_isolate= {"A", "t"})
         self.cubic_mid_dot_12_equation.set_color_by_tex("A", YELLOW)
         self.cubic_mid_dot_12_equation.set_color_by_tex("t", GRAY_BROWN)
 
-        self.cubic_mid_dot_23_equation = MathTex("B = lerp(t, P_2, P_3)", color=WHITE, substrings_to_isolate= {"B", "t"})
+        self.cubic_mid_dot_23_equation = MathTex("B = lerp(t, P_1, P_2)", color=WHITE, substrings_to_isolate= {"B", "t"})
         self.cubic_mid_dot_23_equation.set_color_by_tex("B", RED)
         self.cubic_mid_dot_23_equation.set_color_by_tex("t", GRAY_BROWN)
 
@@ -179,7 +216,7 @@ class BezierIntro(Scene):
         self.cubic_mid_dot_234_equation.set_color_by_tex("C", ORANGE)
         self.cubic_mid_dot_234_equation.set_color_by_tex("t", GRAY_BROWN)
 
-        self.cubic_mid_dot_34_equation = MathTex("C = lerp(t, P_3, P_4)", color=WHITE, substrings_to_isolate= {"C", "t"})
+        self.cubic_mid_dot_34_equation = MathTex("C = lerp(t, P_2, P_3)", color=WHITE, substrings_to_isolate= {"C", "t"})
         self.cubic_mid_dot_34_equation.set_color_by_tex("C", ORANGE)
         self.cubic_mid_dot_34_equation.set_color_by_tex("t", GRAY_BROWN)
 
@@ -287,6 +324,7 @@ class BezierIntro(Scene):
         dot3_text.add_updater(
             lambda m: m.next_to(dot3, DOWN)
         )
+        self.wait(0.5)
 
         self.draw_upd = 1
         self.k = 1
@@ -308,10 +346,45 @@ class BezierIntro(Scene):
 
             return self.curve_2
         
+        self.draw_upd = 1
         curve_line_2 = always_redraw(get_cubic_curve_2)
         self.add(curve_line_2)
 
-        self.wait(3)
+        self.wait(2.5)
+        self.play(
+            Uncreate(self.curve_2),
+            dot2.animate.shift(5 * RIGHT),
+            dot3.animate.shift(5 * LEFT + 4 * UP),
+            dot1.animate.shift(2 * DOWN + 1.5 * RIGHT),
+            dot4.animate.shift(2 * DOWN + 1.5 * LEFT),
+            dot3_text.animate.add_updater(
+                lambda m: m.next_to(dot3, UP)
+            ),
+        )
+        dot3_text.add_updater(
+            lambda m: m.next_to(dot3, UP)
+        )
+        self.wait(0.5)
+
+        # 3 Linija
+        self.draw_upd = 1
+
+        self.curve_3 = VGroup()
+        self.curve_3.add(Line(dot1.get_center(), dot1.get_center()))
+        def get_cubic_curve_3():
+            if self.draw_upd == 2:
+                last_line = self.curve_3[-1]
+                x = mid_dot_1234.get_center()[0]
+                y = mid_dot_1234.get_center()[1]
+                new_line = Line(last_line.get_end(),np.array([x,y,0]), color=YELLOW_D)
+                self.curve_3.add(new_line)
+
+            return self.curve_3
+        
+        curve_line_3 = always_redraw(get_cubic_curve_3)
+        self.add(curve_line_3)
+
+        self.wait(4.5)
 
         self.play(
             Uncreate(line_12),
@@ -339,14 +412,15 @@ class BezierIntro(Scene):
         )
         
         self.play(
-            Uncreate(self.curve_2),
             Uncreate(self.cubic_equations),
-            
+            Uncreate(self.curve_3),
             Uncreate(dot1_text),
             Uncreate(dot2_text),
             Uncreate(dot3_text),
             Uncreate(dot4_text)
         )
+
+        # KRAJ KUBNIH KRIVIH
 
     def construct(self):
         # Ispis Autora
@@ -376,25 +450,25 @@ class BezierIntro(Scene):
         dot4 = Dot().set_z_index(100)
 
         # Label njihovih imena
-        dot1_text = MathTex("P_1")
+        dot1_text = MathTex("P_0")
         dot1_text.scale(0.8)
         dot1_text.add_updater(
                 lambda m: m.next_to(dot1, LEFT)
             )
         
-        dot2_text = MathTex("P_2")
+        dot2_text = MathTex("P_1")
         dot2_text.scale(0.8)
         dot2_text.add_updater(
                 lambda m: m.next_to(dot2, RIGHT)
             )
         
-        dot3_text = MathTex("P_3")
+        dot3_text = MathTex("P_2")
         dot3_text.scale(0.8)
         dot3_text.add_updater(
                 lambda m: m.next_to(dot3, RIGHT)
             )
 
-        dot4_text = MathTex("P_4")
+        dot4_text = MathTex("P_3")
         dot4_text.scale(0.8)
         dot4_text.add_updater(
                 lambda m: m.next_to(dot4, RIGHT)
@@ -404,6 +478,7 @@ class BezierIntro(Scene):
         mid_dot_123 = Dot().set_z_index(90)
         mid_dot_123.set_fill(BLACK)
         mid_dot_123.set_stroke(BLUE, width=4)
+        mid_dot_123.save_state()
         mid_dot_123_tex = MathTex("P_{mid}")
         mid_dot_123_tex.scale(0.8)
         mid_dot_123_tex.add_updater(
@@ -426,12 +501,12 @@ class BezierIntro(Scene):
         line_12.add_updater(lambda z: z.become(Line(dot1.get_center(), dot2.get_center(), color=GREY)))
 
         # Jednacina sredisnje tacke
-        mid_dot_123_equation = MathTex("P_{mid} = (1-t)*P_1 + t*P_2", color=BLUE)
+        mid_dot_123_equation = MathTex("P_{mid} = (1-t)*P_0 + t*P_1", color=BLUE)
         mid_dot_123_equation.scale(0.9),
         mid_dot_123_equation.shift(3.5*LEFT + 2.7*UP)
         mid_dot_123_eq_framebox = SurroundingRectangle(mid_dot_123_equation)
 
-        mid_dot_123_equation_upd = MathTex("P_{mid} = lerp(t, P_1, P_2)", color=BLUE)
+        mid_dot_123_equation_upd = MathTex("P = lerp(t, P_0, P_1)", color=BLUE)
         mid_dot_123_equation_upd.scale(0.9),
         mid_dot_123_equation_upd.shift(3.5*LEFT + 2.7*UP)
         mid_dot_123_eq_framebox_upd = SurroundingRectangle(mid_dot_123_equation_upd)
@@ -505,9 +580,9 @@ class BezierIntro(Scene):
             Uncreate(text_intro),
             Create(mid_dot_123_equation_upd),
             Transform(mid_dot_123_eq_framebox, mid_dot_123_eq_framebox_upd),
-            run_time=1
+            run_time=1.5
         )
-        self.wait()
+        self.wait(0.5)
 
 
         # Brisanje jednacina, indikatora i shiftovanje postojecih tacaka
@@ -516,8 +591,10 @@ class BezierIntro(Scene):
         line_23 = Line(start=dot2.get_center(), end=dot3.get_center(), color=GREY)
         line_23.add_updater(lambda z: z.become(Line(dot2.get_center(), dot3.get_center(), color=GREY)))
         
+        self.wait()
         self.play(
             Uncreate(mid_label),
+            Uncreate(mid_dot_123),
             Uncreate(mid_dot_123_eq_framebox),
             Uncreate(mid_dot_123_tex),
             Uncreate(mid_dot_123_equation_upd),
@@ -540,9 +617,21 @@ class BezierIntro(Scene):
         mid_dot_12.set_fill(BLACK)
         mid_dot_12.set_stroke(YELLOW, width=4)
 
+        mid_dot_12_text = MathTex("A", color=YELLOW)
+        mid_dot_12_text.scale(0.8)
+        mid_dot_12_text.add_updater(
+                lambda m: m.next_to(mid_dot_12, LEFT)
+            )
+
         mid_dot_23 = Dot(color=BLUE).shift((dot2.get_center() + dot3.get_center()) / 2).set_z_index(90)
         mid_dot_23.set_fill(BLACK)
         mid_dot_23.set_stroke(RED, width=4)
+
+        mid_dot_23_text = MathTex("B", color=RED)
+        mid_dot_23_text.scale(0.8)
+        mid_dot_23_text.add_updater(
+                lambda m: m.next_to(mid_dot_23, RIGHT)
+            )
 
         line_123 = Line(start=mid_dot_12.get_center(), end=mid_dot_23.get_center(), color=GREY)
         line_123.add_updater(lambda z: z.become(Line(mid_dot_12.get_center(), mid_dot_23.get_center(), color=GREY)))
@@ -551,7 +640,7 @@ class BezierIntro(Scene):
 
         
         # Animacija kvadratnog Bezijera
-        self.QuadraticBezier(dot1, dot2, dot3, mid_dot_12, mid_dot_23, mid_dot_123, line_12, line_23, line_123)
+        self.QuadraticBezier(dot1, dot2, dot3, mid_dot_12, mid_dot_23, mid_dot_123, line_12, line_23, line_123, mid_dot_12_text, mid_dot_23_text)
 
 
         # Dodavanje potrebnih tacaka i linije za Kubnog bezier-a
@@ -613,19 +702,46 @@ class BezierIntro(Scene):
 
 class BezierIntro2(Scene):
     def construct(self):
+        self.quadratic_equations = VGroup()
 
-        autori = VGroup()
-        autori += Text("Branko Grbić", t2c={"Branko Grbić": ORANGE}).scale(0.45)
-        autori += Text("Maša Cucić", t2c={"Maša Cucić": ORANGE}).scale(0.45)
-        autori.arrange(DOWN, aligned_edge=LEFT).shift(2.5 * DOWN + 4.5 * RIGHT)
+        self.quadratic_mid_dot_12_equation = MathTex("A = lerp(t, P_0, P_1)", color=WHITE, substrings_to_isolate= {"A", "t"})
+        self.quadratic_mid_dot_23_equation = MathTex("B = lerp(t, P_1, P_2)", color=WHITE, substrings_to_isolate= {"B", "t"})
+        self.quadratic_mid_dot_123_equation = MathTex("P = lerp(t, A, B)", color=WHITE, substrings_to_isolate= {"P", "t", "A", "B"}).scale(0.8)
 
-        # Ispis naslova
-        text_intro = Text("Bézier-ove krive", t2c={"Bézier": RED, " krive": YELLOW})
+        self.quadratic_mid_dot_12_equation.set_color_by_tex("A", YELLOW)
+        self.quadratic_mid_dot_12_equation.set_color_by_tex("t", GRAY_BROWN)
+
+        self.quadratic_mid_dot_23_equation.set_color_by_tex("B", RED)
+        self.quadratic_mid_dot_23_equation.set_color_by_tex("t", GRAY_BROWN)
+
+        self.quadratic_mid_dot_123_equation.set_color_by_tex("P", BLUE)
+        self.quadratic_mid_dot_123_equation.set_color_by_tex("A", YELLOW)
+        self.quadratic_mid_dot_123_equation.set_color_by_tex("B", RED)
+        self.quadratic_mid_dot_123_equation.set_color_by_tex("t", GRAY_BROWN)
+
+        self.quadratic_equations += self.quadratic_mid_dot_12_equation
+        self.quadratic_equations += self.quadratic_mid_dot_23_equation
+
+        self.quadratic_equations.arrange(DOWN, aligned_edge=LEFT).scale(0.8).shift(2.5 * UP + 4.5 * LEFT)
+
+        quadratic_equations_framebox = SurroundingRectangle(self.quadratic_equations)
+
+
         self.play(
-            Create(text_intro),
-            Create(autori)
+            Create(self.quadratic_equations),
+            Create(quadratic_equations_framebox)
         )
-        self.wait()
+
+        self.play(
+            self.quadratic_equations.animate.add(self.quadratic_mid_dot_123_equation).arrange(DOWN, aligned_edge=LEFT).shift(2.5 * UP + 4.5 * LEFT),
+            Uncreate(quadratic_equations_framebox)
+        )
+
+        quadratic_equations_framebox_upd = SurroundingRectangle(self.quadratic_equations[2])
+        self.play(
+            Create(quadratic_equations_framebox_upd)
+        )
+        self.wait(2)
 '''
 
 

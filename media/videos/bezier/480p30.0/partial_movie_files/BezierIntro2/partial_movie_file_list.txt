@@ -1,2 +1,0 @@
-# This file is used internally by FFMPEG.
-file 'file:/home/brankonymous/Desktop/MATF/Geometrija/Bezier-Curves-using-Manim/media/videos/bezier/480p30.0/partial_movie_files/BezierIntro2/1805163507_2986649480_1240453128.mp4'
