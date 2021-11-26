@@ -2,6 +2,19 @@ from manim import *
 
 import numpy as np
 
+'''
+Created with ManimCE library
+
+Run with command:
+manim -pqh --fps 60 bezier.py BezierIntro
+
+1920 x 1080 quality with 60fps and preview
+render with -pql for lower quality
+render with -pqk for 4K quality
+
+DON'T CHANGE FPS - animations depends on it
+'''
+
 class BezierIntro(Scene):
 
     def QuadraticBezier(self, dot1, dot2, dot3, mid_dot_12, mid_dot_23, mid_dot_123, line_12, line_23, line_123, mid_dot_12_text, mid_dot_23_text):
@@ -189,7 +202,8 @@ class BezierIntro(Scene):
         self.t = 0.5
 
     def CubicBezier(self, dot1, dot2, dot3, dot4, mid_dot_12, mid_dot_23, mid_dot_34, mid_dot_123, mid_dot_234, mid_dot_1234,
-                        line_12, line_23, line_34, line_123, line_234, line_1234, dot1_text, dot2_text, dot3_text, dot4_text):
+                        line_12, line_23, line_34, line_123, line_234, line_1234, dot1_text, dot2_text, dot3_text, dot4_text,
+                        mid_dot_12_text, mid_dot_23_text, mid_dot_34_text, mid_dot_123_text, mid_dot_234_text, mid_dot_1234_text):
         # LaTex Ime
         cubic_bezier_name = Text("Kubna Bézier-ova kriva", t2c={"Kubna Bézier-ova kriva": YELLOW}).scale(0.8).shift(2.85 * DOWN)
 
@@ -235,10 +249,27 @@ class BezierIntro(Scene):
 
         self.cubic_equations.arrange(DOWN, aligned_edge=LEFT).scale(0.6).shift(2 * UP + 5.5 * LEFT)
 
-        self.play(
-            Create(self.cubic_equations)
+        mid_dot_12_text.restore()
+        mid_dot_23_text.restore()
+        mid_dot_23_text.add_updater(
+            lambda m: m.next_to(mid_dot_23, UP)
         )
-        self.wait()
+        mid_dot_123_text.restore()
+        mid_dot_123_text = MathTex("D", color=BLUE).scale(0.8)
+        mid_dot_123_text.add_updater(
+                lambda m: m.next_to(mid_dot_123, 0.5 * UP + 0.5 * LEFT)
+            )
+
+        self.play(
+            Create(self.cubic_equations),
+            Create(mid_dot_12_text),
+            Create(mid_dot_23_text),
+            Create(mid_dot_34_text),
+            Create(mid_dot_123_text),
+            Create(mid_dot_234_text),
+            Create(mid_dot_1234_text)
+        )
+        self.wait(2)
 
         # Kreiranje funkcije za ispis prve krive
         self.curve_1 = VGroup()
@@ -297,8 +328,17 @@ class BezierIntro(Scene):
         mid_dot_1234.add_updater(mid_dot_1234_updater)
         dot1.add_updater(cubic_upd_t_0_1)
 
+        self.play(
+            Uncreate(mid_dot_12_text),
+            Uncreate(mid_dot_23_text),
+            Uncreate(mid_dot_34_text),
+            Uncreate(mid_dot_123_text),
+            Uncreate(mid_dot_234_text),
+            Uncreate(mid_dot_1234_text)
+        )
 
-        self.wait(2)
+
+        self.wait()
         self.play(
             Create(cubic_bezier_name)
         )
@@ -377,7 +417,8 @@ class BezierIntro(Scene):
                 x = mid_dot_1234.get_center()[0]
                 y = mid_dot_1234.get_center()[1]
                 new_line = Line(last_line.get_end(),np.array([x,y,0]), color=YELLOW_D)
-                self.curve_3.add(new_line)
+                if (x <= dot4.get_center()[0]):
+                    self.curve_3.add(new_line)
 
             return self.curve_3
         
@@ -479,9 +520,11 @@ class BezierIntro(Scene):
         mid_dot_123.set_fill(BLACK)
         mid_dot_123.set_stroke(BLUE, width=4)
         mid_dot_123.save_state()
-        mid_dot_123_tex = MathTex("P_{mid}")
-        mid_dot_123_tex.scale(0.8)
-        mid_dot_123_tex.add_updater(
+
+        mid_dot_123_text = MathTex("P_{mid}")
+        mid_dot_123_text.scale(0.8)
+        mid_dot_123_text.save_state()
+        mid_dot_123_text.add_updater(
                 lambda m: m.next_to(mid_dot_123, DOWN + 0.2 * RIGHT)
             )
 
@@ -516,7 +559,7 @@ class BezierIntro(Scene):
             Create(mid_dot_123),
             Create(dot1_text),
             Create(dot2_text),
-            Create(mid_dot_123_tex),
+            Create(mid_dot_123_text),
             Transform(text_intro, mid_dot_123_equation)
         )
         self.wait()
@@ -596,7 +639,7 @@ class BezierIntro(Scene):
             Uncreate(mid_label),
             Uncreate(mid_dot_123),
             Uncreate(mid_dot_123_eq_framebox),
-            Uncreate(mid_dot_123_tex),
+            Uncreate(mid_dot_123_text),
             Uncreate(mid_dot_123_equation_upd),
 
             Create(dot3),
@@ -622,6 +665,7 @@ class BezierIntro(Scene):
         mid_dot_12_text.add_updater(
                 lambda m: m.next_to(mid_dot_12, LEFT)
             )
+        mid_dot_12_text.save_state()
 
         mid_dot_23 = Dot(color=BLUE).shift((dot2.get_center() + dot3.get_center()) / 2).set_z_index(90)
         mid_dot_23.set_fill(BLACK)
@@ -632,6 +676,7 @@ class BezierIntro(Scene):
         mid_dot_23_text.add_updater(
                 lambda m: m.next_to(mid_dot_23, RIGHT)
             )
+        mid_dot_23_text.save_state()
 
         line_123 = Line(start=mid_dot_12.get_center(), end=mid_dot_23.get_center(), color=GREY)
         line_123.add_updater(lambda z: z.become(Line(mid_dot_12.get_center(), mid_dot_23.get_center(), color=GREY)))
@@ -668,12 +713,24 @@ class BezierIntro(Scene):
         mid_dot_34.set_fill(BLACK)
         mid_dot_34.set_stroke(ORANGE, width=4)
 
+        mid_dot_34_text = MathTex("C", color=ORANGE)
+        mid_dot_34_text.scale(0.8)
+        mid_dot_34_text.add_updater(
+                lambda m: m.next_to(mid_dot_34, RIGHT)
+            )
+
         line_234 = Line(start=mid_dot_23.get_center(), end=mid_dot_34.get_center(), color=GREY)
         line_234.add_updater(lambda z: z.become(Line(mid_dot_23.get_center(), mid_dot_34.get_center(), color=GREY)))
 
         mid_dot_234 = Dot().shift((mid_dot_23.get_center() + mid_dot_34.get_center()) / 2).set_z_index(80)
         mid_dot_234.set_fill(BLACK)
         mid_dot_234.set_stroke(MAROON, width=4)
+
+        mid_dot_234_text = MathTex("E", color=MAROON)
+        mid_dot_234_text.scale(0.8)
+        mid_dot_234_text.add_updater(
+                lambda m: m.next_to(mid_dot_234, 0.5 * UP + 0.5 * RIGHT)
+            )
 
         self.play(
             Create(mid_dot_34),
@@ -686,6 +743,12 @@ class BezierIntro(Scene):
         mid_dot_1234.set_fill(BLACK)
         mid_dot_1234.set_stroke(PINK, width=4)
 
+        mid_dot_1234_text = MathTex("P", color=PINK)
+        mid_dot_1234_text.scale(0.8)
+        mid_dot_1234_text.add_updater(
+                lambda m: m.next_to(mid_dot_1234, 0.5 * UP)
+            )
+
         line_1234 = Line(start=mid_dot_123.get_center(), end=mid_dot_234.get_center(), color=GREY)
         line_1234.add_updater(lambda z: z.become(Line(mid_dot_123.get_center(), mid_dot_234.get_center(), color=GREY)))
 
@@ -696,11 +759,12 @@ class BezierIntro(Scene):
 
         # Animacija kubnog Bezijera
         self.CubicBezier(dot1, dot2, dot3, dot4, mid_dot_12, mid_dot_23, mid_dot_34, mid_dot_123, mid_dot_234, mid_dot_1234,
-                        line_12, line_23, line_34, line_123, line_234, line_1234, dot1_text, dot2_text, dot3_text, dot4_text)
+                        line_12, line_23, line_34, line_123, line_234, line_1234, dot1_text, dot2_text, dot3_text, dot4_text,
+                        mid_dot_12_text, mid_dot_23_text, mid_dot_34_text, mid_dot_123_text, mid_dot_234_text, mid_dot_1234_text)
 
         self.wait()
 
-class BezierIntro2(Scene):
+class PracticeScene(Scene):
     def construct(self):
         self.quadratic_equations = VGroup()
 
